@@ -130,6 +130,7 @@ export function startNode(
 		console.log(`Added ${flags}`);
 	}
 
+	console.log(args);
 	p[name] = spawn(bin, args);
 
 	let log = fs.createWriteStream(`${name}.log`);
@@ -145,6 +146,9 @@ export async function exportGenesisWasm(
 	chain?: string
 ): Promise<string> {
 	let args = ["export-genesis-wasm"];
+	if (chain) {
+		args.push("--chain=" + chain);
+	}
 
 	// wasm files are typically large and `exec` requires us to supply the maximum buffer size in
 	// advance. Hopefully, this generous limit will be enough.
@@ -183,13 +187,19 @@ export function startCollator(
 	wsPort: number,
 	rpcPort: number | undefined,
 	port: number,
-	options: CollatorOptions
+	options: CollatorOptions,
+	chain?: string,
+
 ) {
 	return new Promise<void>(function (resolve) {
 		// TODO: Make DB directory configurable rather than just `tmp`
 		let args = ["--ws-port=" + wsPort, "--port=" + port];
 		const { basePath, name, onlyOneParachainNode, flags, spec } = options;
-
+		if (chain) {
+			args.push("--chain=" + chain);
+		}
+		console.log(flags);
+	
 		if (rpcPort) {
 			args.push("--rpc-port=" + rpcPort);
 			console.log(`Added --rpc-port=" + ${rpcPort}`);
@@ -237,6 +247,7 @@ export function startCollator(
 			args = args.concat(flags_collator);
 			console.log(`Added ${flags_collator} to collator`);
 		}
+		console.log(args);
 
 		p[wsPort] = spawn(bin, args);
 

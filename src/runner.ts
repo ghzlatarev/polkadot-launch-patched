@@ -123,8 +123,8 @@ export async function run(config_dir: string, rawConfig: LaunchConfig) {
 
 	// Then launch each parachain
 	for (const parachain of config.parachains) {
-		const { id, resolvedId, balance } = parachain;
-
+		const { id, resolvedId, balance, chain } = parachain;
+		console.log(chain);
 		const bin = resolve(config_dir, parachain.bin);
 		if (!fs.existsSync(bin)) {
 			console.error("Parachain binary does not exist: ", bin);
@@ -144,7 +144,7 @@ export async function run(config_dir: string, rawConfig: LaunchConfig) {
 				flags,
 				basePath,
 				onlyOneParachainNode: config.parachains.length === 1,
-			});
+			}, chain);
 		}
 
 		// Allow time for the TX to complete, avoiding nonce issues.
@@ -221,7 +221,12 @@ async function addParachainsToGenesis(
 			let genesisWasm: string;
 			try {
 				genesisState = await exportGenesisState(bin, chain);
-				genesisWasm = await exportGenesisWasm(bin);
+				console.log("\n");
+				console.log("\n");
+				console.log(chain);
+				console.log("\n");
+				console.log("\n");
+				genesisWasm = await exportGenesisWasm(bin, chain);
 			} catch (err) {
 				console.error(err);
 				process.exit(1);
